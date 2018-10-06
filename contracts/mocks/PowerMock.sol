@@ -5,7 +5,7 @@ import "../Power.sol";
     BancorFormula test helper that exposes some BancorFormula functions
 */
 contract PowerMock is Power {
-  function PowerMock()  public {
+  constructor()  public {
   }
 
   function powerTest(uint256 _baseN, uint256 _baseD, uint32 _expN, uint32 _expD) public constant returns (uint256, uint8) {

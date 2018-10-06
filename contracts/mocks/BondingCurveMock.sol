@@ -3,7 +3,7 @@ pragma solidity ^0.4.18;
 import "../BondingCurve.sol";
 
 contract BondingCurveMock is BondingCurve{
-  function BondingCurveMock(
+  constructor(
     uint256 _totalSupply,
     uint256 _poolBalance,
     uint32 _reserveRatio,
