@@ -11,7 +11,9 @@ contract TCRFactory is BondingCurve {
   struct tcr {
     bytes32 content; // content from UI
     uint32 reserveRatio; // reserve ratio, represented in ppm, 1-1000000
-    address ERC20token;    
+    uint256 poolBalance;
+    uint256 totalSharesSupply_;
+    address ERC20token; 
     mapping(address => uint) balances;
   }
 
@@ -45,7 +47,7 @@ contract TCRFactory is BondingCurve {
   function buy(uint256 hashID) validGasPrice public payable returns(bool) {
     // do something
     // update balances in tcr
-    return super.buy();
+    // rewrite based on super.buy(), but do not call it
   }
 
   /**
@@ -57,7 +59,7 @@ contract TCRFactory is BondingCurve {
   function sell(uint256 hashID, uint256 sellAmount) validGasPrice public returns(bool) {
     // do something
     // update balances in tcr
-    // return super.sell(); 
+    // rewrite based on super.sell(), but do not call it
   }
 
   /**
