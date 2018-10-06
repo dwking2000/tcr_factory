@@ -1,4 +1,4 @@
-let TcrFactory = artifacts.require('./BondingCurve.sol');
+let TcrFactory = artifacts.require('./TcrFactory.sol');
 let ECRecovery = artifacts.require('zeppelin-solidity/contracts/ECRecovery.sol');
 
 module.exports = function (deployer) {
