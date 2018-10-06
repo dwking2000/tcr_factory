@@ -9,22 +9,22 @@ import "./BondingCurve.sol";
 contract TCRFactory is BondingCurve {
 
   struct tcr {
-    bytes[] content; // content from UI
+    bytes32 content; // content from UI
     uint32 reserveRatio; // reserve ratio, represented in ppm, 1-1000000
     address ERC20token;    
     mapping(address => uint) balances;
   }
 
-  mapping(uint256 => tcr) tcrs; // maps a hash (see _getHash) to tcr
+  mapping(bytes32 => tcr) tcrs; // maps a hash (see _getHashID) to tcr
 
   /**
    * @dev default function
    * gas ~ 
    */
-  function createTCR (bytes[] content, uint32 ratio, address erc20) public payable {
+  function createTCR (bytes32 content, uint32 ratio, address erc20) public payable {
     require(erc20 != address(0)); // FIXME check syntax
     // TODO sanity check ratio
-    tcrs[_getHashID(content, reserveRatio, ERC20token)] = tcr({content, reserveRatio, ERC20token});
+    tcrs[_getHashID(content, reserveRatio, erc20)] = tcr(content, reserveRatio, erc20);
   }
 
   // FIXME - Are default functions inherited by default?
@@ -34,7 +34,7 @@ contract TCRFactory is BondingCurve {
    * gas ~ 
    */
   function() public payable {
-    throw; // FIXME
+    revert(); // FIXME
   }
 
   /**
@@ -57,14 +57,13 @@ contract TCRFactory is BondingCurve {
   function sell(uint256 hashID, uint256 sellAmount) validGasPrice public returns(bool) {
     // do something
     // update balances in tcr
-    return super.sell(); 
+    // return super.sell(); 
   }
 
   /**
     @dev Create a hash from content, reserveRatio and the ERC20 token address
-    @param 
   */
-  function _getHashID(bytes[] content, uint32 reserveRatio, address ERC20token) private internal returns (uint256 hash) {
+  function _getHashID(bytes32, uint32 reserveRatio, address ERC20token) internal returns (bytes32 hash) {
     // FIXME
   }
 
