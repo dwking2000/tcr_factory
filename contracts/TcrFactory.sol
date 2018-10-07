@@ -91,8 +91,15 @@ contract TCRFactory is StandardToken, BancorFormula, Ownable {
   /**
     @dev Create a hash from content, reserveRatio and the ERC20 token address
   */
-  function _gethashId(bytes32 hashId, uint32 reserveRatio, address ERC20token) internal pure returns (bytes32 hash) {
-    return keccak256(abi.encodePacked(hashId, reserveRatio, ERC20token));
+  function getHashId(bytes content, uint32 reserveRatio, address ERC20token) public pure returns (bytes32 hash) {
+    return keccak256(abi.encodePacked(content, reserveRatio, ERC20token));
+  }
+
+  /**
+    @dev Create a hash from content, reserveRatio and the ERC20 token address
+  */
+  function getContent(bytes32 hashId) public view returns (bytes content) {
+    return tcrs[hashId].content;
   }
 
   event LogMint(uint256 amountMinted, uint256 totalCost);
