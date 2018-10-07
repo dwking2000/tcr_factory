@@ -49,35 +49,42 @@ contract TCRFactory is StandardToken, BancorFormula, Ownable {
    * gas ~ 77825
    * TODO implement maxAmount that helps prevent miner front-running
    */
-  function buy(bytes32 hashId) public payable returns(bool) {
-    require(msg.value > 0, "expected non-zero msg.value");
+  function buy(bytes32 hashId, uint256 ercBuyAmount) public returns(bool) {
+    require(ercBuyAmount > 0, "expected non-zero value");
 
     tcr storage buyFromTcr = tcrs[hashId];
 
-    uint256 tokensToMint = calculatePurchaseReturn(buyFromTcr.totalSharesSupply, buyFromTcr.poolBalance, buyFromTcr.reserveRatio, msg.value);
+    address erc20 = buyFromTcr.ERC20token;
+    require(erc20.call("transferFrom", erc20, msg.sender, address(this), ercBuyAmount));
+
+    uint256 tokensToMint = calculatePurchaseReturn(buyFromTcr.totalSharesSupply, buyFromTcr.poolBalance, buyFromTcr.reserveRatio, ercBuyAmount);
     buyFromTcr.totalSharesSupply = buyFromTcr.totalSharesSupply.add(tokensToMint);
     
     buyFromTcr.balances[msg.sender] = buyFromTcr.balances[msg.sender].add(tokensToMint);
-    buyFromTcr.poolBalance = buyFromTcr.poolBalance.add(msg.value);
-    emit LogMint(hashId, tokensToMint, msg.value);
+    buyFromTcr.poolBalance = buyFromTcr.poolBalance.add(ercBuyAmount);
+    emit LogMint(hashId, tokensToMint, ercBuyAmount);
     return true;
   }
 
   /**
    * @dev Sell tokens
    * gas ~ 
-   * @param sellAmount Amount of tokens to withdraw
+   * @param sellSharesAmount Amount of tokens to withdraw
    * TODO implement maxAmount that helps prevent miner front-running
    */
-  function sell(bytes32 hashId, uint256 sellAmount) public returns(bool) {
+  function sell(bytes32 hashId, uint256 sellSharesAmount) public returns(bool) {
+
     tcr storage sellToTcr = tcrs[hashId];
-    require(sellAmount > 0 && sellToTcr.balances[msg.sender] >= sellAmount, "sell amount exceded balance");
-    uint256 ethAmount = calculateSaleReturn(sellToTcr.totalSharesSupply, sellToTcr.poolBalance, sellToTcr.reserveRatio, sellAmount);
-    msg.sender.transfer(ethAmount);
-    sellToTcr.poolBalance = sellToTcr.poolBalance.sub(ethAmount);
-    sellToTcr.balances[msg.sender] = sellToTcr.balances[msg.sender].sub(sellAmount);
-    sellToTcr.totalSharesSupply = sellToTcr.totalSharesSupply.sub(sellAmount);
-    emit LogWithdraw(hashId, sellAmount, ethAmount);
+    require(sellSharesAmount > 0 && sellToTcr.balances[msg.sender] >= sellSharesAmount, "sell amount exceded balance");
+
+    uint256 erc20Amount = calculateSaleReturn(sellToTcr.totalSharesSupply, sellToTcr.poolBalance, sellToTcr.reserveRatio, sellSharesAmount);
+    address erc20 = sellToTcr.ERC20token;
+    require(erc20.call("transferFrom", erc20, address(this), msg.sender, erc20Amount));
+
+    sellToTcr.poolBalance = sellToTcr.poolBalance.sub(erc20Amount);
+    sellToTcr.balances[msg.sender] = sellToTcr.balances[msg.sender].sub(sellSharesAmount);
+    sellToTcr.totalSharesSupply = sellToTcr.totalSharesSupply.sub(sellSharesAmount);
+    emit LogWithdraw(hashId, sellSharesAmount, erc20Amount);
     return true;
   }
 
