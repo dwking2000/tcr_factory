@@ -9,7 +9,7 @@ contract FakeDai is MintableToken {
   string public constant version = "0.1";
 
   constructor() public {
-    mint(owner, 2000);
+    mint(owner, 2000 * 1e18);
   }
 
 }
