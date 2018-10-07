@@ -30,13 +30,14 @@ contract TcrFactory is StandardToken, BancorFormula, Ownable {
    * @dev default function
    * gas ~ 
    */
-  function createTCR (bytes content, uint32 ratio, address erc20, uint256 ercBuyAmount) public payable {
+  function createTCR (bytes content, uint32 ratio, address erc20, uint32 startingBalance) public {
     require(erc20 != address(0), "Can't send to address zero - accidential burn ?");
     tcrHash = getHashId(content, ratio, erc20);
     tcrs[tcrHash] = tcr({content:content, reserveRatio:ratio, poolBalance:0, totalSharesSupply:0, ERC20token:erc20});
-    if (ercBuyAmount > 0) {
-      buy(tcrHash, ercBuyAmount);
+    if(startingBalance > 0){
+      buy(tcrHash, startingBalance);
     }
+    emit TcrCreated(tcrHash, content, ratio, erc20, startingBalance);
   }
 
   /**
@@ -109,5 +110,6 @@ contract TcrFactory is StandardToken, BancorFormula, Ownable {
   event LogMint(uint256 amountMinted, uint256 totalCost);
   event LogWithdraw(uint256 amountWithdrawn, uint256 reward);
   event LogBondingCurve(string logString, uint256 value);
+  event TcrCreated(bytes32 hashId, bytes32 content, uint32 ratio, address erc20, uint32 startingBalance);
 }
 
