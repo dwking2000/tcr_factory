@@ -41,7 +41,8 @@ contract TCRFactory is StandardToken, BancorFormula, Ownable {
    * gas ~ 91645
    */
   function() public payable {
-    revert("Contract can't receive ETH. Use the Buy function.");
+    // revert("Contract can't receive ETH. Use the Buy function.");
+    // FIXME - revert might be killing everything when transferring erc20
   }
 
   /**
