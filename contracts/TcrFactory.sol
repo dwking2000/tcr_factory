@@ -5,13 +5,13 @@ import "./zsc/ownership/Ownable.sol";
 import "./BancorFormula.sol";
 
 /**
- * @title TCRFactory
+ * @title TcrFactory
  * @dev Factory and repository for creating universal continuous Token Curated Registries staked with ERC20 tokens
  */
-contract TCRFactory is StandardToken, BancorFormula, Ownable {
+contract TcrFactory is StandardToken, BancorFormula, Ownable {
 
   struct tcr {
-    bytes32 content; // content from UI
+    bytes content; // content from UI
     uint32 reserveRatio; // reserve ratio, represented in ppm, 1-1000000
     uint256 poolBalance;
     uint256 totalSharesSupply;
@@ -22,17 +22,18 @@ contract TCRFactory is StandardToken, BancorFormula, Ownable {
   event LogMint(bytes32 hashId, uint256 amountMinted, uint256 totalCost);
   event LogWithdraw(bytes32 hashId, uint256 amountWithdrawn, uint256 reward);
   event LogBondingCurve(bytes32 hashId, string logString, uint256 value);
+  event TcrCreated(bytes32 hashId, bytes content, uint32 ratio, address erc20, uint32 startingBalance);
 
   bytes32 tcrHash;
-  mapping(bytes32 => tcr) tcrs; // maps a hash - the ID of the tcr (see _gethashId)
+  mapping(bytes32 => tcr) public tcrs; // maps a hash - the ID of the tcr (see getHashId)
 
   /**
    * @dev default function
    * gas ~ 
    */
-  function createTCR (bytes32 content, uint32 ratio, address erc20, uint32 startingBalance) public {
+  function createTCR (bytes content, uint32 ratio, address erc20, uint32 startingBalance) public {
     require(erc20 != address(0), "Can't send to address zero - accidential burn ?");
-    tcrHash = _gethashId(content, ratio, erc20);
+    tcrHash = getHashId(content, ratio, erc20);
     tcrs[tcrHash] = tcr({content:content, reserveRatio:ratio, poolBalance:0, totalSharesSupply:0, ERC20token:erc20});
     if(startingBalance > 0){
       buy(tcrHash, startingBalance);
@@ -45,7 +46,8 @@ contract TCRFactory is StandardToken, BancorFormula, Ownable {
    * gas ~ 91645
    */
   function() public payable {
-    revert("Contract can't receive ETH. Use the Buy function.");
+    // revert("Contract can't receive ETH. Use the Buy function.");
+    // FIXME - revert might be killing everything when transferring erc20
   }
 
   /**
@@ -95,13 +97,16 @@ contract TCRFactory is StandardToken, BancorFormula, Ownable {
   /**
     @dev Create a hash from content, reserveRatio and the ERC20 token address
   */
-  function _gethashId(bytes32 hashId, uint32 reserveRatio, address ERC20token) internal pure returns (bytes32 hash) {
-    return keccak256(abi.encodePacked(hashId, reserveRatio, ERC20token));
+  function getHashId(bytes content, uint32 reserveRatio, address ERC20token) public pure returns (bytes32 hash) {
+    return keccak256(abi.encodePacked(content, reserveRatio, ERC20token));
   }
 
-  event LogMint(uint256 amountMinted, uint256 totalCost);
-  event LogWithdraw(uint256 amountWithdrawn, uint256 reward);
-  event LogBondingCurve(string logString, uint256 value);
-  event TcrCreated(bytes32 hashId, bytes32 content, uint32 ratio, address erc20, uint32 startingBalance);
+  /**
+    @dev Create a hash from content, reserveRatio and the ERC20 token address
+  */
+  function getContent(bytes32 hashId) public view returns (bytes content) {
+    return tcrs[hashId].content;
+  }
+
 }
 
