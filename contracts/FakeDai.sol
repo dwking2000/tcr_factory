@@ -10,6 +10,4 @@ contract FakeDai is MintableToken {
   uint8 public constant decimals = 18;
   string public constant version = "0.1";
   
-  constructor()  public {
-  }
 }

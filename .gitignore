@@ -9,7 +9,8 @@ npm-debug.log
 .env
 
 # truffle build directory
-build/
+# we are checking in ABIs for now
+# build/
 
 # lol macs
 .DS_Store
