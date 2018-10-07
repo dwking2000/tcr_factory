@@ -38,3 +38,4 @@ coverageEnv
 
 # node-waf configuration
 .lock-wscript
+package-lock.json
