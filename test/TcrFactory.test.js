@@ -45,23 +45,29 @@ contract('TcrFactory', accounts => {
 
   // Positive Test 3
   it("should create a TCR", async () => {    
-    const contractArtifact = require('../build/contracts/TcrFactory.json');
+    const fakeDaiArtifact = require('../build/contracts/FakeDai.json');
+    let fakeDaiAddress = fakeDaiArtifact.networks['5777'].address;
+    console.log("fakeDaiAddress is " + fakeDaiAddress);
 
     var Web3 = require('web3');
     var web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:7545/'));
 
-    let address = "0x668d2f2e6fd15de9026dedfea371fd4aa2ad269b";
-    // factory = await new web3.eth.Contract(contractArtifact.abi, address, {from: accounts[0]});
-    factory = await new web3.eth.Contract(contractArtifact.abi, address);
+    const tcrFactoryArtifact = require('../build/contracts/TcrFactory.json');
+    let tcrFactoryAddress = tcrFactoryArtifact.networks['5777'].address;
+    console.log("tcrFactoryAddress is " + tcrFactoryAddress);
+
+    factory = await new web3.eth.Contract(tcrFactoryArtifact.abi, tcrFactoryAddress, {from: accounts[0]});
 
     let content = new Uint8Array([0, 1, 255, 2]);
-    // let content = "0x111";
     let ratio = 500000;
     let amount = 100;
 
     console.log("debug 1");
-    await factory.methods.createTCR(content, ratio, fakeDaiToken, amount).call();
     console.log("debug 2");
+    // fails here but it's not the address any more. possibly the content
+    // await factory.methods.createTCR(content, ratio, fakeDaiAddress, amount).call({from: accounts[0]});
+    await factory.methods.createTCR("foo bar", ratio, fakeDaiAddress, amount).call({from: accounts[0]});
+    console.log("debug 3");
   });
 
   // Positive Test 4
