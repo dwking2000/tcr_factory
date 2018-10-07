@@ -33,14 +33,14 @@
     "babel-preset-stage-2": "^6.18.0",
     "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.23.0",
-    "chai": "^4.0.2",
+    "chai": "^4.2.0",
     "chai-as-promised": "^7.0.0",
-    "chai-bignumber": "^2.0.0",
+    "chai-bignumber": "^2.0.2",
     "dotenv": "^4.0.0",
-    "eslint": "^4.17.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
-    "solidity-coverage": "^0.4.11",
+    "eslint-plugin-react": "^7.11.1",
+    "solidity-coverage": "^0.5.11",
     "web3": "^1.0.0-beta.34",
     "web3-utils": "^1.0.0-beta.34"
   }

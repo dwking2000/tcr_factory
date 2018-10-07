@@ -45,23 +45,37 @@ contract('TcrFactory', accounts => {
 
   // Positive Test 3
   it("should create a TCR", async () => {    
+    const contractArtifact = require('../build/contracts/TcrFactory.json');
+
+    var Web3 = require('web3');
+    var web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:7545/'));
+
+    let address = "0x668d2f2e6fd15de9026dedfea371fd4aa2ad269b";
+    // factory = await new web3.eth.Contract(contractArtifact.abi, address, {from: accounts[0]});
+    factory = await new web3.eth.Contract(contractArtifact.abi, address);
+
     let content = new Uint8Array([0, 1, 255, 2]);
+    // let content = "0x111";
     let ratio = 500000;
     let amount = 100;
-    await factory.createTCR(content, ratio, fakeDaiToken, amount);
+
+    console.log("debug 1");
+    await factory.methods.createTCR(content, ratio, fakeDaiToken, amount).call();
+    console.log("debug 2");
   });
 
   // Positive Test 4
-  it("should generate the correct hashId for the TCR and return the correct content", async () => {
+  // it("should generate the correct hashId for the TCR and return the correct content", async () => {
     
-    let content = new Uint8Array([0, 1, 255, 2]);
-    let ratio = 500000;
-    await factory.createTCR(content, ratio, fakeDaiToken);
+  //   let content = new Uint8Array([0, 1, 255, 2]);
+  //   let ratio = 500000;
+  //   let amount = 100;
+  //   await factory.createTCR(content, ratio, fakeDaiToken, amount, {from: accounts[0]});
 
-    let hashId = await factory.getHashId(content, ratio, fakeDaiToken);
-    let contentRetrieved = await factory.getContent(hashId);
-    assert.equal(content, contentRetrieved, `Expected content retrieved ${content} does not match ${contentRetrieved}`);
-  });
+  //   let hashId = await factory.getHashId(content, ratio, fakeDaiToken);
+  //   let contentRetrieved = await factory.getContent(hashId);
+  //   assert.equal(content, contentRetrieved, `Expected content retrieved ${content} does not match ${contentRetrieved}`);
+  // });
 
 });
 
