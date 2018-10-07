@@ -1,14 +1,13 @@
 pragma solidity ^0.4.18;
 
-import "zeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./BancorFormula.sol";
-
 /**
+
  * @title TcrFactory
  * @dev Factory and repository for creating universal continuous Token Curated Registries staked with ERC20 tokens
  */
-contract TcrFactory is StandardToken, BancorFormula, Ownable {
+contract TcrFactory is BancorFormula, Ownable {
 
   struct tcr {
     bytes content; // content from UI
