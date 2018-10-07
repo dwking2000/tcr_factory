@@ -1,8 +1,7 @@
 let TcrFactory = artifacts.require('./TcrFactory.sol');
-let ECRecovery = artifacts.require('zeppelin-solidity/contracts/ECRecovery.sol');
+let FakeDai = artifacts.require('./FakeDai.sol');
 
 module.exports = function (deployer) {
-  deployer.deploy(ECRecovery);
-  deployer.link(ECRecovery, TcrFactory);
   deployer.deploy(TcrFactory);
+  deployer.deploy(FakeDai);
 };
