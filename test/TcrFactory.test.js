@@ -39,7 +39,7 @@ contract('TcrFactory', accounts => {
     let result = await fakeDaiToken.Mint(fakeDaiMinter, fakeDaiMinted);
     let balance = await fakeDaiToken.balanceOf(fakeDaiMinter);
     // so we've hard coded FakeDai to mint with 2000 tokens to the owner in its constructor
-    let expectedBalance = 2000; 
+    let expectedBalance = 2000*1e18; 
     assert.equal(balance, expectedBalance, `Balance returned ${balance} does not match ${expectedBalance}`);
   });
 
