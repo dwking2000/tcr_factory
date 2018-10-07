@@ -22,6 +22,7 @@ contract TcrFactory is StandardToken, BancorFormula, Ownable {
   event LogMint(bytes32 hashId, uint256 amountMinted, uint256 totalCost);
   event LogWithdraw(bytes32 hashId, uint256 amountWithdrawn, uint256 reward);
   event LogBondingCurve(bytes32 hashId, string logString, uint256 value);
+  event TcrCreated(bytes32 hashId, bytes content, uint32 ratio, address erc20, uint32 startingBalance);
 
   bytes32 tcrHash;
   mapping(bytes32 => tcr) public tcrs; // maps a hash - the ID of the tcr (see getHashId)
@@ -107,9 +108,5 @@ contract TcrFactory is StandardToken, BancorFormula, Ownable {
     return tcrs[hashId].content;
   }
 
-  event LogMint(uint256 amountMinted, uint256 totalCost);
-  event LogWithdraw(uint256 amountWithdrawn, uint256 reward);
-  event LogBondingCurve(string logString, uint256 value);
-  event TcrCreated(bytes32 hashId, bytes32 content, uint32 ratio, address erc20, uint32 startingBalance);
 }
 
