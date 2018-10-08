@@ -3,9 +3,9 @@ import expectThrow from './helpers/expectThrow';
 
 const TcrFactory = artifacts.require('../contracts/TcrFactory.sol');
 const FakeDai = artifacts.require('../contracts/FakeDai.sol');
+const MintableToken = artifacts.require('MintableToken');
 
 const { shouldBehaveLikeMintableToken } = require('zeppelin-solidity/test/token/ERC20/MintableToken.behaviour.js');
-const MintableToken = artifacts.require('MintableToken');
 
 const BigNumber = web3.BigNumber;
 
@@ -14,60 +14,58 @@ require('chai')
   .should();
 
 contract('TcrFactory', accounts => {
-  let factory;
-  let fakeDaiToken;
+  //let factory;
+  //let fakeDaiToken;
 
   let fakeDaiMinter = accounts[0];
   const fakeDaiMinted = 2222; // unused, doesn't work
 
   const self = this;
 
-  before(async () => {
-    factory = await TcrFactory.new();
-    fakeDaiToken = await FakeDai.new({from: fakeDaiMinter});
+  // Setup before each test
+  beforeEach(async function () {
+    this.factory = await TcrFactory.new();
+    this.fakeDaiToken = await FakeDai.new({from: fakeDaiMinter});
   });
 
-  // Positive Test 1 
-  it("should deploy contracts: TcrFactory and FakeDai", () => {
-    assert(factory !== undefined, 'TcrFactory contract should be deployed.');
-    assert(fakeDaiToken !== undefined, 'FakeDai contract should be deployed.');
+  // Deploys contracts
+  it("should deploy contracts: TcrFactory and FakeDai", async function () {
+    assert(this.factory !== undefined, 'TcrFactory contract should be deployed.');
+    assert(this.fakeDaiToken !== undefined, 'FakeDai contract should be deployed.');
   });
 
-  // Positive Test 2
-  it("should create FakeDai for minter", async () => {
+  // Mints FakeDai
+  it("should mint FakeDai to minter address", async function () {
     // passing FakeDaiMinted here does not work
-    let result = await fakeDaiToken.Mint(fakeDaiMinter, fakeDaiMinted);
-    let balance = await fakeDaiToken.balanceOf(fakeDaiMinter);
+    let result = await this.fakeDaiToken.Mint(this.fakeDaiMinter, fakeDaiMinted);
+    let balance = await this.fakeDaiToken.balanceOf(fakeDaiMinter);
     // so we've hard coded FakeDai to mint with 2000 tokens to the owner in its constructor
     let expectedBalance = 2000*1e18; 
     assert.equal(balance, expectedBalance, `Balance returned ${balance} does not match ${expectedBalance}`);
   });
 
-  // Positive Test 3
-  it("should create a TCR", async () => {    
-    const fakeDaiArtifact = require('../build/contracts/FakeDai.json');
-    let fakeDaiAddress = fakeDaiArtifact.networks['5777'].address;
-    console.log("fakeDaiAddress is " + fakeDaiAddress);
-
-    var Web3 = require('web3');
-    var web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:7545/'));
-
-    const tcrFactoryArtifact = require('../build/contracts/TcrFactory.json');
-    let tcrFactoryAddress = tcrFactoryArtifact.networks['5777'].address;
-    console.log("tcrFactoryAddress is " + tcrFactoryAddress);
-
-    factory = await new web3.eth.Contract(tcrFactoryArtifact.abi, tcrFactoryAddress, {from: accounts[0]});
+  // Create a TCR
+  it("should create a TCR", async function () {    
+    //Try to use Web3 object here
+    //const tcrFactoryJson = require('../build/contracts/TcrFactory.json');
+    //var Web3 = require('web3');
+    //var web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:7545/'));
+    //let address = "0xf328c11c4df88d18fcbd30ad38d8b4714f4b33bf";
+    //factory = await new web3.eth.Contract(tcrFactoryJson.abi, address, {from: accounts[0]});
+    //factory = await new web3.eth.Contract(tcrFactoryJson.abi, address);
 
     let content = new Uint8Array([0, 1, 255, 2]);
+    //let content = "0x111";
     let ratio = 500000;
     let amount = 100;
+    assert(this.factory !== undefined, 'TcrFactory contract should be deployed.');
+    assert(this.fakeDaiToken !== undefined, 'FakeDaiToken contract should be deployed.');
 
-    console.log("debug 1");
+    //function createTCR (bytes content, uint32 ratio, address erc20, uint32 startingBalance) public {
+  
+    await this.factory.createTCR(content, ratio, this.fakeDaiToken, amount);
+
     console.log("debug 2");
-    // fails here but it's not the address any more. possibly the content
-    // await factory.methods.createTCR(content, ratio, fakeDaiAddress, amount).call({from: accounts[0]});
-    await factory.methods.createTCR("foo bar", ratio, fakeDaiAddress, amount).call({from: accounts[0]});
-    console.log("debug 3");
   });
 
   // Positive Test 4
