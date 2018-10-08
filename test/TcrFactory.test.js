@@ -4,28 +4,25 @@ import expectThrow from './helpers/expectThrow';
 const TcrFactory = artifacts.require('../contracts/TcrFactory.sol');
 const FakeDai = artifacts.require('../contracts/FakeDai.sol');
 const MintableToken = artifacts.require('MintableToken');
+const { ether } = require('./helpers/ether');
 
 const { shouldBehaveLikeMintableToken } = require('zeppelin-solidity/test/token/ERC20/MintableToken.behaviour.js');
 
 const BigNumber = web3.BigNumber;
+const value = ether(0.42);
 
 require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('TcrFactory', accounts => {
-  //let factory;
-  //let fakeDaiToken;
+contract('TcrFactory', function ([_, vitalik, alice, bob, charlie]) {
 
-  let fakeDaiMinter = accounts[0];
   const fakeDaiMinted = 2222; // unused, doesn't work
-
-  const self = this;
-
+ 
   // Setup before each test
   beforeEach(async function () {
     this.factory = await TcrFactory.new();
-    this.fakeDaiToken = await FakeDai.new({from: fakeDaiMinter});
+    this.fakeDaiToken = await FakeDai.new({from: vitalik });
   });
 
   // Deploys contracts
@@ -37,8 +34,8 @@ contract('TcrFactory', accounts => {
   // Mints FakeDai
   it("should mint FakeDai to minter address", async function () {
     // passing FakeDaiMinted here does not work
-    let result = await this.fakeDaiToken.Mint(this.fakeDaiMinter, fakeDaiMinted);
-    let balance = await this.fakeDaiToken.balanceOf(fakeDaiMinter);
+    let result = await this.fakeDaiToken.Mint(this.vitalik, fakeDaiMinted);
+    let balance = await this.fakeDaiToken.balanceOf(vitalik);
     // so we've hard coded FakeDai to mint with 2000 tokens to the owner in its constructor
     let expectedBalance = 2000*1e18; 
     assert.equal(balance, expectedBalance, `Balance returned ${balance} does not match ${expectedBalance}`);
@@ -61,8 +58,7 @@ contract('TcrFactory', accounts => {
     assert(this.factory !== undefined, 'TcrFactory contract should be deployed.');
     assert(this.fakeDaiToken !== undefined, 'FakeDaiToken contract should be deployed.');
 
-    //function createTCR (bytes content, uint32 ratio, address erc20, uint32 startingBalance) public {
-  
+    //function createTCR (bytes content, uint32 ratio, address erc20, uint32 startingBalance)
     await this.factory.createTCR(content, ratio, this.fakeDaiToken, amount);
 
     console.log("debug 2");
