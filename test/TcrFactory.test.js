@@ -1,9 +1,11 @@
 import assertRevert from './helpers/assertRevert';
 import expectThrow from './helpers/expectThrow';
 
-const TcrFactory = artifacts.require('../contracts/TcrFactory.sol');
-const FakeDai = artifacts.require('../contracts/FakeDai.sol');
+//bind ABIs from build artifcts
+const TcrFactory = artifacts.require('TcrFactory');
+const FakeDai = artifacts.require('FakeDai');
 const MintableToken = artifacts.require('MintableToken');
+
 const { ether } = require('./helpers/ether');
 
 const { shouldBehaveLikeMintableToken } = require('zeppelin-solidity/test/token/ERC20/MintableToken.behaviour.js');
@@ -15,14 +17,14 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('TcrFactory', function ([_, vitalik, alice, bob, charlie]) {
+contract('TcrFactory', function ([_, account_1, account_2, account_3, account_4]) {
 
   const fakeDaiMinted = 2222; // unused, doesn't work
  
   // Setup before each test
   beforeEach(async function () {
     this.factory = await TcrFactory.new();
-    this.fakeDaiToken = await FakeDai.new({from: vitalik });
+    this.fakeDaiToken = await FakeDai.new({from: account_1 });
   });
 
   // Deploys contracts
@@ -31,38 +33,44 @@ contract('TcrFactory', function ([_, vitalik, alice, bob, charlie]) {
     assert(this.fakeDaiToken !== undefined, 'FakeDai contract should be deployed.');
   });
 
+  // say hello
+  it("should say hello", async function () {
+    //await this.factory
+    await this.factory.hello("foo");
+  });
+
   // Mints FakeDai
-  it("should mint FakeDai to minter address", async function () {
-    // passing FakeDaiMinted here does not work
-    let result = await this.fakeDaiToken.Mint(this.vitalik, fakeDaiMinted);
-    let balance = await this.fakeDaiToken.balanceOf(vitalik);
-    // so we've hard coded FakeDai to mint with 2000 tokens to the owner in its constructor
+  it("should mint FakeDai to account_1", async function () {
+    let result = await this.fakeDaiToken.Mint(this.account_1, fakeDaiMinted);
+    let balance = await this.fakeDaiToken.balanceOf(account_1);
     let expectedBalance = 2000*1e18; 
     assert.equal(balance, expectedBalance, `Balance returned ${balance} does not match ${expectedBalance}`);
   });
 
   // Create a TCR
-  it("should create a TCR", async function () {    
-    //Try to use Web3 object here
-    //const tcrFactoryJson = require('../build/contracts/TcrFactory.json');
-    //var Web3 = require('web3');
-    //var web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:7545/'));
-    //let address = "0xf328c11c4df88d18fcbd30ad38d8b4714f4b33bf";
-    //factory = await new web3.eth.Contract(tcrFactoryJson.abi, address, {from: accounts[0]});
-    //factory = await new web3.eth.Contract(tcrFactoryJson.abi, address);
-
+  it("should create a TCR", async function () {
     let content = new Uint8Array([0, 1, 255, 2]);
     //let content = "0x111";
     let ratio = 500000;
-    let amount = 100;
+    let amount = 0;
     assert(this.factory !== undefined, 'TcrFactory contract should be deployed.');
     assert(this.fakeDaiToken !== undefined, 'FakeDaiToken contract should be deployed.');
-
-    //function createTCR (bytes content, uint32 ratio, address erc20, uint32 startingBalance)
-    await this.factory.createTCR(content, ratio, this.fakeDaiToken, amount);
-
-    console.log("debug 2");
+    console.log(this.fakeDaiToken);
+    await this.factory.createTCR(["0x1262","0x12","0x12"], ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
   });
+
+  // Create a TCR
+  it("should return content from TCR", async function () {
+    let content = new Uint8Array([0, 1, 255, 2]);
+    //let content = "0x111";
+    let ratio = 500000;
+    let amount = 0;
+    assert(this.factory !== undefined, 'TcrFactory contract should be deployed.');
+    assert(this.fakeDaiToken !== undefined, 'FakeDaiToken contract should be deployed.');
+    console.log(this.fakeDaiToken);
+    await this.factory.createTCR(["0x1262","0x12","0x12"], ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
+  });
+
 
   // Positive Test 4
   // it("should generate the correct hashId for the TCR and return the correct content", async () => {
