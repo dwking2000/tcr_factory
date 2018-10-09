@@ -3,11 +3,15 @@ pragma solidity ^0.4.18;
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./BancorFormula.sol";
 /**
-
  * @title TcrFactory
  * @dev Factory and repository for creating universal continuous Token Curated Registries staked with ERC20 tokens
  */
 contract TcrFactory is BancorFormula, Ownable {
+
+  event LogMint(bytes32 hashId, uint256 amountMinted, uint256 totalCost);
+  event LogWithdraw(bytes32 hashId, uint256 amountWithdrawn, uint256 reward);
+  event LogBondingCurve(bytes32 hashId, string logString, uint256 value);
+  event TcrCreated(bytes32 hashId, bytes content, uint32 ratio, address erc20, uint32 startingBalance);
 
   struct tcr {
     bytes content; // content from UI
@@ -15,16 +19,16 @@ contract TcrFactory is BancorFormula, Ownable {
     uint256 poolBalance;
     uint256 totalSharesSupply;
     address ERC20token; 
-    mapping(address => uint) balances;
+    mapping(address => uint) balances; //TODO: is this needed, do we need individual amounts? Perhaps this mapping should be on it's own, not in the struct.
   }
 
-  event LogMint(bytes32 hashId, uint256 amountMinted, uint256 totalCost);
-  event LogWithdraw(bytes32 hashId, uint256 amountWithdrawn, uint256 reward);
-  event LogBondingCurve(bytes32 hashId, string logString, uint256 value);
-  event TcrCreated(bytes32 hashId, bytes content, uint32 ratio, address erc20, uint32 startingBalance);
-
   bytes32 tcrHash;
-  mapping(bytes32 => tcr) public tcrs; // maps a hash - the ID of the tcr (see getHashId)
+  bytes helloMsg; //TODO: remove me
+
+  // TCR mappings
+  // maps a hash - the key of the tcr (see getHashId)
+  mapping(bytes32 => tcr) public tcrs; 
+  bytes32[] public tcrKeys;
 
   /**
    * @dev default function
@@ -34,10 +38,13 @@ contract TcrFactory is BancorFormula, Ownable {
     require(erc20 != address(0), "Can't send to address zero - accidential burn ?");
     tcrHash = getHashId(content, ratio, erc20);
     tcrs[tcrHash] = tcr({content:content, reserveRatio:ratio, poolBalance:0, totalSharesSupply:0, ERC20token:erc20});
+    // tcrKeys.add(tcrHash);
+    tcrKeys.push(tcrHash); //TODO: we should probably just store it on IPFS.
+    emit TcrCreated(tcrHash, content, ratio, erc20, startingBalance);
+
     if(startingBalance > 0){
       buy(tcrHash, startingBalance);
     }
-    emit TcrCreated(tcrHash, content, ratio, erc20, startingBalance);
   }
 
   /**
@@ -104,8 +111,26 @@ contract TcrFactory is BancorFormula, Ownable {
     @dev Create a hash from content, reserveRatio and the ERC20 token address
   */
   function getContent(bytes32 hashId) public view returns (bytes content) {
+    //TODO: should we convert it here?
     return tcrs[hashId].content;
   }
 
-}
+   /**
+    @dev Create a hash from content, reserveRatio and the ERC20 token address
+  */
+  function getContentStakers(bytes32 hashId) public view returns (bytes content) {
+    return tcrs[hashId].content;
+  }
 
+  function getKeys() public view returns (bytes32[]) {
+    return tcrKeys;
+  }
+
+  function getTcrCount() public view returns(uint tcrCount) {
+    return tcrKeys.length;
+  }
+
+  function hello (bytes m) public {
+    helloMsg = m;
+  }
+}

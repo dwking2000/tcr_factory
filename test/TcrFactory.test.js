@@ -49,27 +49,77 @@ contract('TcrFactory', function ([_, account_1, account_2, account_3, account_4]
 
   // Create a TCR
   it("should create a TCR", async function () {
-    let content = new Uint8Array([0, 1, 255, 2]);
-    //let content = "0x111";
     let ratio = 500000;
     let amount = 0;
-    assert(this.factory !== undefined, 'TcrFactory contract should be deployed.');
-    assert(this.fakeDaiToken !== undefined, 'FakeDaiToken contract should be deployed.');
-    console.log(this.fakeDaiToken);
-    await this.factory.createTCR(["0x1262","0x12","0x12"], ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
+    let hexArray = 'my string content payload'.split ('').map (function (c) { return c.charCodeAt (0); })
+    await this.factory.createTCR(bytesToHex(hexArray), ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
   });
 
-  // Create a TCR
-  it("should return content from TCR", async function () {
-    let content = new Uint8Array([0, 1, 255, 2]);
-    //let content = "0x111";
+  // Read all the keys for the TCRs
+  it("should return 3 keys from TCR", async function () {
     let ratio = 500000;
     let amount = 0;
-    assert(this.factory !== undefined, 'TcrFactory contract should be deployed.');
-    assert(this.fakeDaiToken !== undefined, 'FakeDaiToken contract should be deployed.');
-    console.log(this.fakeDaiToken);
-    await this.factory.createTCR(["0x1262","0x12","0x12"], ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
+    await this.factory.createTCR(["0x62","0x12","0x12","0x12"], ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
+    await this.factory.createTCR(["0x12","0x12","0x12","0x12"], ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
+    await this.factory.createTCR(["0x145","0x12","0x12","0x12"], ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
+    let keys = await this.factory.getKeys();
+    assert(keys.length == 3);
+    //console.log(keys);
   });
+
+  // get a TCR fromsy
+  it("should return content from a key", async function () {
+    let ratio = 500000;
+    let amount = 0;
+
+    let hexArray = 'my payload'.split ('').map (function (c) { return c.charCodeAt (0); })
+    await this.factory.createTCR(bytesToHex(hexArray), ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
+    await this.factory.createTCR(bytesToHex("another thing to store"), ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
+    //Gas usage: ~317813
+
+    let keys = await this.factory.getKeys();
+    console.log(keys);
+    let content = await this.factory.getContent(keys[0]);
+    console.log(content);
+    content = await this.factory.getContent(keys[1]);
+    console.log(content);
+  });
+
+  function stringToHexStringArray(str){
+    var myBuffer = [];
+    var buffer = new Buffer(str, 'utf16le');
+    for (var i = 0; i < buffer.length; i++) {
+        myBuffer.push(buffer[i]);
+    }
+    return myBuffer;
+  }
+  
+
+  //note: implementation from crypto-js
+  // Convert a hex string to a byte array
+  function hexToBytes(hex) {
+      for (var bytes = [], c = 0; c < hex.length; c += 2)
+      bytes.push(parseInt(hex.substr(c, 2), 16));
+      return bytes;
+  }
+  // Convert a byte array to a hex string array. May need this in the UI code if you don't have a util to do it.
+  function bytesToHex(bytes) {
+    for (var hex = [], i = 0; i < bytes.length; i++) {
+        hex.push((bytes[i] >>> 4).toString(16));
+        hex.push((bytes[i] & 0xF).toString(16));
+    }
+    return hex;
+  }
+
+  // it('should log creation of TCR', async function () {
+  //   const { logs } = await this.factory.sendTransaction({ value: value, from: investor });
+  //   const event = logs.find(e => e.event === 'TokenPurchase');
+  //   should.exist(event);
+  //   event.args.purchaser.should.equal(investor);
+  //   event.args.beneficiary.should.equal(investor);
+  //   event.args.value.should.be.bignumber.equal(value);
+  //   event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
+  // });
 
 
   // Positive Test 4
