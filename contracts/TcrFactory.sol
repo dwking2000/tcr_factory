@@ -11,10 +11,10 @@ contract TcrFactory is BancorFormula, Ownable {
   event LogMint(bytes32 hashId, uint256 amountMinted, uint256 totalCost);
   event LogWithdraw(bytes32 hashId, uint256 amountWithdrawn, uint256 reward);
   event LogBondingCurve(bytes32 hashId, string logString, uint256 value);
-  event TcrCreated(bytes32 hashId, bytes content, uint32 ratio, address erc20, uint32 startingBalance);
+  event TcrCreated(bytes32 hashId, string content, uint32 ratio, address erc20, uint32 startingBalance);
 
   struct tcr {
-    bytes content; // content from UI
+    string content; // content from UI
     uint32 reserveRatio; // reserve ratio, represented in ppm, 1-1000000
     uint256 poolBalance;
     uint256 totalSharesSupply;
@@ -34,7 +34,7 @@ contract TcrFactory is BancorFormula, Ownable {
    * @dev default function
    * gas ~ 
    */
-  function createTCR (bytes content, uint32 ratio, address erc20, uint32 startingBalance) public {
+  function createTCR (string content, uint32 ratio, address erc20, uint32 startingBalance) public {
     require(erc20 != address(0), "Can't send to address zero - accidential burn ?");
     tcrHash = getHashId(content, ratio, erc20);
     tcrs[tcrHash] = tcr({content:content, reserveRatio:ratio, poolBalance:0, totalSharesSupply:0, ERC20token:erc20});
@@ -103,22 +103,15 @@ contract TcrFactory is BancorFormula, Ownable {
   /**
     @dev Create a hash from content, reserveRatio and the ERC20 token address
   */
-  function getHashId(bytes content, uint32 reserveRatio, address ERC20token) public pure returns (bytes32 hash) {
+  function getHashId(string content, uint32 reserveRatio, address ERC20token) public pure returns (bytes32 hash) {
     return keccak256(abi.encodePacked(content, reserveRatio, ERC20token));
   }
 
   /**
     @dev Create a hash from content, reserveRatio and the ERC20 token address
   */
-  function getContent(bytes32 hashId) public view returns (bytes content) {
+  function getContent(bytes32 hashId) public view returns (string content) {
     //TODO: should we convert it here?
-    return tcrs[hashId].content;
-  }
-
-   /**
-    @dev Create a hash from content, reserveRatio and the ERC20 token address
-  */
-  function getContentStakers(bytes32 hashId) public view returns (bytes content) {
     return tcrs[hashId].content;
   }
 

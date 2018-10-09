@@ -12,6 +12,7 @@ const { shouldBehaveLikeMintableToken } = require('zeppelin-solidity/test/token/
 
 const BigNumber = web3.BigNumber;
 const value = ether(0.42);
+const fakeDaiMinted = 2222;
 
 require('chai')
   .use(require('chai-bignumber')(BigNumber))
@@ -19,9 +20,7 @@ require('chai')
 
 contract('TcrFactory', function ([_, account_1, account_2, account_3, account_4]) {
 
-  const fakeDaiMinted = 2222; // unused, doesn't work
- 
-  // Setup before each test
+  // Setup - before each test we create new contracts
   beforeEach(async function () {
     this.factory = await TcrFactory.new();
     this.fakeDaiToken = await FakeDai.new({from: account_1 });
@@ -51,89 +50,39 @@ contract('TcrFactory', function ([_, account_1, account_2, account_3, account_4]
   it("should create a TCR", async function () {
     let ratio = 500000;
     let amount = 0;
-    let hexArray = 'my string content payload'.split ('').map (function (c) { return c.charCodeAt (0); })
-    await this.factory.createTCR(bytesToHex(hexArray), ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
+    //let hexArray = 'my string content payload'.split ('').map (function (c) { return c.charCodeAt (0); })
+    await this.factory.createTCR("just a string", ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
   });
 
   // Read all the keys for the TCRs
   it("should return 3 keys from TCR", async function () {
     let ratio = 500000;
     let amount = 0;
-    await this.factory.createTCR(["0x62","0x12","0x12","0x12"], ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
-    await this.factory.createTCR(["0x12","0x12","0x12","0x12"], ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
-    await this.factory.createTCR(["0x145","0x12","0x12","0x12"], ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
+    await this.factory.createTCR("foo", ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
+    await this.factory.createTCR("bar", ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
+    await this.factory.createTCR("baz", ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 300000});
     let keys = await this.factory.getKeys();
     assert(keys.length == 3);
     //console.log(keys);
   });
 
-  // get a TCR fromsy
-  it("should return content from a key", async function () {
+  // get a TCR and content
+  it("should return content from a tcr", async function () {
     let ratio = 500000;
     let amount = 0;
 
     let hexArray = 'my payload'.split ('').map (function (c) { return c.charCodeAt (0); })
-    await this.factory.createTCR(bytesToHex(hexArray), ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
-    await this.factory.createTCR(bytesToHex("another thing to store"), ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
+    await this.factory.createTCR("one", ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
+    await this.factory.createTCR("two", ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
     //Gas usage: ~317813
 
     let keys = await this.factory.getKeys();
-    console.log(keys);
+   //console.log(keys);
     let content = await this.factory.getContent(keys[0]);
-    console.log(content);
+    assert(content == "one");
     content = await this.factory.getContent(keys[1]);
-    console.log(content);
+    assert(content == "two");
   });
-
-  function stringToHexStringArray(str){
-    var myBuffer = [];
-    var buffer = new Buffer(str, 'utf16le');
-    for (var i = 0; i < buffer.length; i++) {
-        myBuffer.push(buffer[i]);
-    }
-    return myBuffer;
-  }
-  
-
-  //note: implementation from crypto-js
-  // Convert a hex string to a byte array
-  function hexToBytes(hex) {
-      for (var bytes = [], c = 0; c < hex.length; c += 2)
-      bytes.push(parseInt(hex.substr(c, 2), 16));
-      return bytes;
-  }
-  // Convert a byte array to a hex string array. May need this in the UI code if you don't have a util to do it.
-  function bytesToHex(bytes) {
-    for (var hex = [], i = 0; i < bytes.length; i++) {
-        hex.push((bytes[i] >>> 4).toString(16));
-        hex.push((bytes[i] & 0xF).toString(16));
-    }
-    return hex;
-  }
-
-  // it('should log creation of TCR', async function () {
-  //   const { logs } = await this.factory.sendTransaction({ value: value, from: investor });
-  //   const event = logs.find(e => e.event === 'TokenPurchase');
-  //   should.exist(event);
-  //   event.args.purchaser.should.equal(investor);
-  //   event.args.beneficiary.should.equal(investor);
-  //   event.args.value.should.be.bignumber.equal(value);
-  //   event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
-  // });
-
-
-  // Positive Test 4
-  // it("should generate the correct hashId for the TCR and return the correct content", async () => {
-    
-  //   let content = new Uint8Array([0, 1, 255, 2]);
-  //   let ratio = 500000;
-  //   let amount = 100;
-  //   await factory.createTCR(content, ratio, fakeDaiToken, amount, {from: accounts[0]});
-
-  //   let hashId = await factory.getHashId(content, ratio, fakeDaiToken);
-  //   let contentRetrieved = await factory.getContent(hashId);
-  //   assert.equal(content, contentRetrieved, `Expected content retrieved ${content} does not match ${contentRetrieved}`);
-  // });
 
 });
 
