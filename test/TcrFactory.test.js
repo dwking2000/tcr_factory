@@ -46,6 +46,18 @@ contract('TcrFactory', function ([_, account_1, account_2, account_3, account_4]
     assert.equal(balance, expectedBalance, `Balance returned ${balance} does not match ${expectedBalance}`);
   });
 
+  it("should approve and transfer FakeDai from account_1 to account_2", async function () {
+    await this.fakeDaiToken.approve(account_1, 400000, { from: account_2 });
+
+    it('allows to transfer from when approved', async function () {
+      await this.fakeDaiToken.transferFrom(account_1, account_2, 400000, { from: account_2 });
+      // const senderBalance = await this.token.balanceOf(account_1);
+      // assert.equal(senderBalance, 60);
+      // const recipientBalance = await this.token.balanceOf(account_2);
+      // assert.equal(recipientBalance, 40);
+    });
+  });
+
   // Create a TCR
   it("should create a TCR", async function () {
     let ratio = 500000;
@@ -71,7 +83,6 @@ contract('TcrFactory', function ([_, account_1, account_2, account_3, account_4]
     let ratio = 500000;
     let amount = 0;
 
-    let hexArray = 'my payload'.split ('').map (function (c) { return c.charCodeAt (0); })
     await this.factory.createTCR("one", ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
     await this.factory.createTCR("two", ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
     //Gas usage: ~317813
@@ -84,7 +95,33 @@ contract('TcrFactory', function ([_, account_1, account_2, account_3, account_4]
     assert(content == "two");
   });
 
+    // get a TCR and content
+    it("should buy shares from a tcr", async function () {
+      let ratio = 500000;
+      let amount = 0;
+  
+      await this.factory.createTCR("created by user one", ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
+      await this.factory.createTCR("created by user two", ratio, this.fakeDaiToken.address, amount, {from: account_2, gas: 400000});
+      //Gas usage: ~317813
+  
+      let keys = await this.factory.getKeys();
+      console.log(keys);
+      let content = await this.factory.getContent(keys[0]);
+      assert(content == "created by user one");
+      content = await this.factory.getContent(keys[1]);
+      assert(content == "created by user two");
+      
+      // buy(bytes32 hashId, uint256 ercBuyAmount)
+      // approve first
+      let tcrFactoryAddress = "0xa4516018d6b0313a03a69130356f23a168c0ab10";
+      await this.fakeDaiToken.approve(tcrFactoryAddress, 400000, { from: account_1 });
+
+      await this.factory.buy(keys[1], 300000, {from: account_1, gas: 1000000});
+    });
 });
+
+// buy(bytes32 hashId, uint256 ercBuyAmount)
+
 
   // // Positive Test X
   // it('should buy tokens correctly via default function', async () => {

@@ -12,7 +12,9 @@
     "lint:sol:fix": "solium -d . --fix"
   },
   "dependencies": {
+    "connect": "^3.6.6",
     "npm-watch": "^0.3.0",
+    "serve-static": "^1.13.2",
     "solium": "^1.1.5",
     "truffle-contract": "^3.0.6",
     "truffle-hdwallet-provider": "0.0.3",

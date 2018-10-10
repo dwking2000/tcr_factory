@@ -67,7 +67,25 @@ contract TcrFactory is BancorFormula, Ownable {
     tcr storage buyFromTcr = tcrs[hashId];
 
     address erc20 = buyFromTcr.ERC20token;
-    require(erc20.call("transferFrom", erc20, msg.sender, address(this), ercBuyAmount));
+    //const mTransferFrom = "transferFrom";
+    require(erc20.call("transferFrom", erc20, msg.sender, address(this), ercBuyAmount)," buy() erc20.call transferFrom failed");
+
+/*
+  contract OtherContract {
+      function otherMethod(address _to, uint _price);
+  }
+
+  contract MyContract {
+      uint public unitPrice = 100;
+
+      function myMethod(address _destination, uint _count) {
+          // _destination is a contract that implements OtherContract
+          OtherContract oc = OtherContract(_destination);
+          // call method from other contract
+          oc.otherMethod(address(this), _count * unitPrice);
+      }
+  }
+*/
 
     uint256 tokensToMint = calculatePurchaseReturn(buyFromTcr.totalSharesSupply, buyFromTcr.poolBalance, buyFromTcr.reserveRatio, ercBuyAmount);
     buyFromTcr.totalSharesSupply = buyFromTcr.totalSharesSupply.add(tokensToMint);
