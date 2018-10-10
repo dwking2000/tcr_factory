@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="../node_modules/web3/dist/web3.min.js"></script>
+
+</head>
+<body>
+    <div class="container">
+
+        <h1>TCRmageddon</h1>
+
+        <h2 id="instructor"></h2>
+
+        <label for="content" class="col-lg-2 control-label">Content</label>
+        <input id="content" type="text">
+
+        <label for="startingbalance" class="col-lg-2 control-label">Starting Balance</label>
+        <input id="startingbalance" type="number">
+
+        <button id="button">Add TCR</button>
+
+        <hr/>
+        <button id="button2">Aggregate TCR</button>
+
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+    if (typeof web3 !== 'undefined') {
+              web3 = new Web3(web3.currentProvider);
+          } else {
+              web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+          }
+
+          web3.eth.defaultAccount = "0xd66e018cc12b0e35dc1abf0991cef06a6bd295b9"
+
+          var abi = [ { "constant": false, "inputs": [ { "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" } ], "name": "approve", "outputs": [ { "name": "", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "totalSupply", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [ { "name": "_from", "type": "address" }, { "name": "_to", "type": "address" }, { "name": "_value", "type": "uint256" } ], "name": "transferFrom", "outputs": [ { "name": "", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [ { "name": "_supply", "type": "uint256" }, { "name": "_connectorBalance", "type": "uint256" }, { "name": "_connectorWeight", "type": "uint32" }, { "name": "_depositAmount", "type": "uint256" } ], "name": "calculatePurchaseReturn", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [ { "name": "_supply", "type": "uint256" }, { "name": "_connectorBalance", "type": "uint256" }, { "name": "_connectorWeight", "type": "uint32" }, { "name": "_sellAmount", "type": "uint256" } ], "name": "calculateSaleReturn", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "version", "outputs": [ { "name": "", "type": "string" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [ { "name": "_spender", "type": "address" }, { "name": "_subtractedValue", "type": "uint256" } ], "name": "decreaseApproval", "outputs": [ { "name": "", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [ { "name": "_owner", "type": "address" } ], "name": "balanceOf", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [], "name": "renounceOwnership", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "owner", "outputs": [ { "name": "", "type": "address" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [ { "name": "_to", "type": "address" }, { "name": "_value", "type": "uint256" } ], "name": "transfer", "outputs": [ { "name": "", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "name": "_spender", "type": "address" }, { "name": "_addedValue", "type": "uint256" } ], "name": "increaseApproval", "outputs": [ { "name": "", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [ { "name": "_owner", "type": "address" }, { "name": "_spender", "type": "address" } ], "name": "allowance", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [ { "name": "_newOwner", "type": "address" } ], "name": "transferOwnership", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [ { "name": "", "type": "bytes32" } ], "name": "tcrs", "outputs": [ { "name": "content", "type": "bytes" }, { "name": "reserveRatio", "type": "uint32" }, { "name": "poolBalance", "type": "uint256" }, { "name": "totalSharesSupply", "type": "uint256" }, { "name": "ERC20token", "type": "address" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "payable": true, "stateMutability": "payable", "type": "fallback" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "hashId", "type": "bytes32" }, { "indexed": false, "name": "amountMinted", "type": "uint256" }, { "indexed": false, "name": "totalCost", "type": "uint256" } ], "name": "LogMint", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "hashId", "type": "bytes32" }, { "indexed": false, "name": "amountWithdrawn", "type": "uint256" }, { "indexed": false, "name": "reward", "type": "uint256" } ], "name": "LogWithdraw", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "hashId", "type": "bytes32" }, { "indexed": false, "name": "logString", "type": "string" }, { "indexed": false, "name": "value", "type": "uint256" } ], "name": "LogBondingCurve", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "hashId", "type": "bytes32" }, { "indexed": false, "name": "content", "type": "bytes" }, { "indexed": false, "name": "ratio", "type": "uint32" }, { "indexed": false, "name": "erc20", "type": "address" }, { "indexed": false, "name": "startingBalance", "type": "uint32" } ], "name": "TcrCreated", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "name": "previousOwner", "type": "address" } ], "name": "OwnershipRenounced", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "name": "previousOwner", "type": "address" }, { "indexed": true, "name": "newOwner", "type": "address" } ], "name": "OwnershipTransferred", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "name": "owner", "type": "address" }, { "indexed": true, "name": "spender", "type": "address" }, { "indexed": false, "name": "value", "type": "uint256" } ], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "name": "from", "type": "address" }, { "indexed": true, "name": "to", "type": "address" }, { "indexed": false, "name": "value", "type": "uint256" } ], "name": "Transfer", "type": "event" }, { "constant": false, "inputs": [ { "name": "content", "type": "bytes" }, { "name": "ratio", "type": "uint32" }, { "name": "erc20", "type": "address" }, { "name": "startingBalance", "type": "uint32" } ], "name": "createTCR", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "name": "hashId", "type": "bytes32" }, { "name": "ercBuyAmount", "type": "uint256" } ], "name": "buy", "outputs": [ { "name": "", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "name": "hashId", "type": "bytes32" }, { "name": "sellSharesAmount", "type": "uint256" } ], "name": "sell", "outputs": [ { "name": "", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [ { "name": "content", "type": "bytes" }, { "name": "reserveRatio", "type": "uint32" }, { "name": "ERC20token", "type": "address" } ], "name": "getHashId", "outputs": [ { "name": "hash", "type": "bytes32" } ], "payable": false, "stateMutability": "pure", "type": "function" }, { "constant": true, "inputs": [ { "name": "hashId", "type": "bytes32" } ], "name": "getContent", "outputs": [ { "name": "content", "type": "bytes" } ], "payable": false, "stateMutability": "view", "type": "function" } ];
+
+          var TcrFactoryContract = web3.eth.contract(abi,"0x73f24e09486db7e69705f465832be91b13e67917");
+
+          var TcrFactory = TcrFactoryContract.at('0x73f24e09486db7e69705f465832be91b13e67917');
+
+          //Make a TCR
+          $("#button").click(function() {
+              TcrFactory.createTCR($("#content").val(),2,"0x08cd0c6dc1ff4614053dca4a4a6aa39655d19b32",$("#startingbalance").val(),{from:"0xd66e018cc12b0e35dc1abf0991cef06a6bd295b9", gas:3000000});
+              //TcrFactory.createTCR("Happy",2,"0x08cd0c6dc1ff4614053dca4a4a6aa39655d19b32",0,{from:"0xd66e018cc12b0e35dc1abf0991cef06a6bd295b9", gas:3000000});
+          });
+
+          //List Previous tcrs
+  $("#button2").click(function() {
+    var events = TcrFactory.TcrCreated({fromBlock: 0, toBlock: 'latest'});
+    events.get(function(err, result)
+    {
+        //console.log("Events that matched: ",JSON.stringify(result));
+        //console.log("Events that matched: ",result[0].args);
+        for (i = 0; i < result.length; i++) {
+        console.log("Events that matched: ",JSON.stringify(result[i].args));
+  }
+        // Iterate through events or do whatever you want with the resulting array
+    });
+});
+    </script>
+
+</body>
+</html>
