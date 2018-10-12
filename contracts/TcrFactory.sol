@@ -1,7 +1,9 @@
 pragma solidity ^0.4.18;
 
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "zeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "./BancorFormula.sol";
+import "./FakeDai.sol";
 /**
  * @title TcrFactory
  * @dev Factory and repository for creating universal continuous Token Curated Registries staked with ERC20 tokens
@@ -18,7 +20,7 @@ contract TcrFactory is BancorFormula, Ownable {
     uint32 reserveRatio; // reserve ratio, represented in ppm, 1-1000000
     uint256 poolBalance;
     uint256 totalSharesSupply;
-    address ERC20token; 
+    address ERC20token;
     mapping(address => uint) balances; //TODO: is this needed, do we need individual amounts? Perhaps this mapping should be on it's own, not in the struct.
   }
 
@@ -27,12 +29,12 @@ contract TcrFactory is BancorFormula, Ownable {
 
   // TCR mappings
   // maps a hash - the key of the tcr (see getHashId)
-  mapping(bytes32 => tcr) public tcrs; 
+  mapping(bytes32 => tcr) public tcrs;
   bytes32[] public tcrKeys;
 
   /**
    * @dev default function
-   * gas ~ 
+   * gas ~
    */
   function createTCR (string content, uint32 ratio, address erc20, uint32 startingBalance) public {
     require(erc20 != address(0), "Can't send to address zero - accidential burn ?");
@@ -68,7 +70,7 @@ contract TcrFactory is BancorFormula, Ownable {
 
     address erc20 = buyFromTcr.ERC20token;
     //const mTransferFrom = "transferFrom";
-    require(erc20.call("transferFrom", erc20, msg.sender, address(this), ercBuyAmount)," buy() erc20.call transferFrom failed");
+   require(ERC20(erc20).transferFrom(msg.sender, address(this), ercBuyAmount)," buy() erc20 transferFrom failed");
 
 /*
   contract OtherContract {
@@ -87,18 +89,18 @@ contract TcrFactory is BancorFormula, Ownable {
   }
 */
 
-    uint256 tokensToMint = calculatePurchaseReturn(buyFromTcr.totalSharesSupply, buyFromTcr.poolBalance, buyFromTcr.reserveRatio, ercBuyAmount);
-    buyFromTcr.totalSharesSupply = buyFromTcr.totalSharesSupply.add(tokensToMint);
-    
-    buyFromTcr.balances[msg.sender] = buyFromTcr.balances[msg.sender].add(tokensToMint);
-    buyFromTcr.poolBalance = buyFromTcr.poolBalance.add(ercBuyAmount);
-    emit LogMint(hashId, tokensToMint, ercBuyAmount);
+   uint256 tokensToMint = calculatePurchaseReturn(0, 0, 500000, ercBuyAmount);
+    //buyFromTcr.totalSharesSupply = buyFromTcr.totalSharesSupply.add(tokensToMint);
+
+    //buyFromTcr.balances[msg.sender] = buyFromTcr.balances[msg.sender].add(tokensToMint);
+    //buyFromTcr.poolBalance = buyFromTcr.poolBalance.add(ercBuyAmount);
+    //emit LogMint(hashId, tokensToMint, ercBuyAmount);
     return true;
   }
 
   /**
    * @dev Sell tokens
-   * gas ~ 
+   * gas ~
    * @param sellSharesAmount Amount of tokens to withdraw
    * TODO implement maxAmount that helps prevent miner front-running
    */

@@ -42,7 +42,7 @@ contract('TcrFactory', function ([_, account_1, account_2, account_3, account_4]
   it("should mint FakeDai to account_1", async function () {
     let result = await this.fakeDaiToken.Mint(this.account_1, fakeDaiMinted);
     let balance = await this.fakeDaiToken.balanceOf(account_1);
-    let expectedBalance = 2000*1e18; 
+    let expectedBalance = 2000*1e18;
     assert.equal(balance, expectedBalance, `Balance returned ${balance} does not match ${expectedBalance}`);
   });
 
@@ -95,28 +95,34 @@ contract('TcrFactory', function ([_, account_1, account_2, account_3, account_4]
     assert(content == "two");
   });
 
-    // get a TCR and content
+    // Buy shares from a TCR
     it("should buy shares from a tcr", async function () {
+      //Make sure there's enough DAI in the account
+      await this.fakeDaiToken.Mint(this.account_1, 5000000);
+      let account_1Balance = await this.fakeDaiToken.balanceOf(account_1);
+      assert(account_1Balance >= 20, "Not enough funds in account 1, balance is " + account_1Balance)
+
+
       let ratio = 500000;
       let amount = 0;
-  
+
       await this.factory.createTCR("created by user one", ratio, this.fakeDaiToken.address, amount, {from: account_1, gas: 400000});
       await this.factory.createTCR("created by user two", ratio, this.fakeDaiToken.address, amount, {from: account_2, gas: 400000});
       //Gas usage: ~317813
-  
+
       let keys = await this.factory.getKeys();
       console.log(keys);
       let content = await this.factory.getContent(keys[0]);
       assert(content == "created by user one");
       content = await this.factory.getContent(keys[1]);
       assert(content == "created by user two");
-      
+
       // buy(bytes32 hashId, uint256 ercBuyAmount)
       // approve first
-      let tcrFactoryAddress = "0xa4516018d6b0313a03a69130356f23a168c0ab10";
-      await this.fakeDaiToken.approve(tcrFactoryAddress, 400000, { from: account_1 });
+      let tcrFactoryAddress = this.factory.address;
+      await this.fakeDaiToken.approve(tcrFactoryAddress, 20, { from: account_1 });
 
-      await this.factory.buy(keys[1], 300000, {from: account_1, gas: 1000000});
+      await this.factory.buy(keys[0], 5, {gas: 1000000});
     });
 });
 
@@ -286,4 +292,3 @@ contract('TcrFactory', function ([_, account_1, account_2, account_3, account_4]
 //     assert.equal(1, buyReturn.toNumber(), 'sellReturn should be 0 when selling 0 tokens');
 //   });
 // });
-
